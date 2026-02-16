@@ -19,4 +19,4 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 ## Deploy on Vercel
 
-This Next.js app is deployed on vercel use  [Book Mark app]((https://bookmark-app-aryan.vercel.app/)) .
+This Next.js app is deployed on vercel use  [Book Mark app](https://bookmark-app-aryan.vercel.app/) .
