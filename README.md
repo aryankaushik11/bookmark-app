@@ -33,14 +33,17 @@ Fix: The code uses location.origin, which should correctly use the production UR
 
 ### Missing Auth Callback Route (404)
 Problem: After clicking "Login with Google", the app redirected to /auth/callback which didn't exist, gives a 404 error.
+
 Fix: Created app/auth/callback/route.ts  to handle the OAuth code exchange.
 
 ### Next.js Cookie Handling Erroe(TypeError)
 Problem: The auth callback crashed with TypeError: cookieStore.get is not a function.
+
 fix: In Next.js version15, cookies() is an asynchronous function, but we were treating it as synchronous. I updated code to "await cookies()" before using it.
 
 ### Real-time Updates Not Working (TIMED_OUT)
-Problem: New bookmarks were not appearing instantly, and the console showed TIMED_OUT or WebSocket is closed.
+Problem: New bookmarks were not appearing instantly, and the console showed TIMED_OUT or WebSocket is closed.]
+
 Fix: React Strict Mode (in dev) was creating multiple conflicting WebSocket connections for the same channel name "schema-db-changes", causing Supabase to drop them.
 Updated BookmarkManager.tsx to use a unique channel name per session (bookmarks-${user.id}-${Math.random()}), preventing conflicts during re-renders.
 
