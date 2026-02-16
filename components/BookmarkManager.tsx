@@ -9,24 +9,30 @@ export default function BookmarkManager({ user }: { user: any }) {
     const [title, setTitle] = useState('')
     const [url, setURL] = useState('')
     const [loading, setLoading] = useState(true)
-    const supabase = createClient()
+    // Use useState to ensure the client is only created once
+    const [supabase] = useState(() => createClient())
 
     useEffect(() => {
         fetchBookmarks()
 
+        // Use a unique channel name to avoid conflicts if re-mounting quickly
+        const channelName = `bookmarks-${user.id}-${Math.random()}`
         const channel = supabase
-            .channel('schema-db-changes')
+            .channel(channelName)
             .on(
                 'postgres_changes',
                 {
                     event: '*',
                     schema: 'public',
                     table: 'bookmarks',
-                    filter: `user_id=eq.${user.id}`,
+                    // filter: `user_id=eq.${user.id}`, // Removing filter to debug connection
                 },
                 (payload) => {
                     if (payload.eventType === 'INSERT') {
-                        setBookmarks((prev) => [payload.new as Bookmark, ...prev])
+                        const newBookmark = payload.new as Bookmark
+                        if (newBookmark.user_id === user.id) {
+                            setBookmarks((prev) => [newBookmark, ...prev])
+                        }
                     } else if (payload.eventType === 'DELETE') {
                         setBookmarks((prev) => prev.filter((bookmark) => bookmark.id !== payload.old.id))
                     }
@@ -95,7 +101,7 @@ export default function BookmarkManager({ user }: { user: any }) {
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="e.g. Google"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border text-gray-900"
                             required
                         />
                     </div>
@@ -106,7 +112,7 @@ export default function BookmarkManager({ user }: { user: any }) {
                             value={url}
                             onChange={(e) => setURL(e.target.value)}
                             placeholder="https://example.com"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2 border text-gray-900"
                             required
                         />
                     </div>
